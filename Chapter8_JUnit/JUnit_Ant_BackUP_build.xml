@@ -1,0 +1,76 @@
+<!DOCTYPE project []>
+
+<project name="Using_Ant_To_Run_JUnit_Tests" default="usage" basedir=".">
+	
+<!-- ========== Initialize Property Variables =================================== -->
+<!-- Sets variables which can be used later. The value of a property is accessed via ${PropertyName}--> 
+<!-- Use <echo message="message to print" /> to print your message--> 
+
+	<property environment="env" />
+	
+	<property name="test.home" value="${basedir}" description="Specifies JAVA project location"/>
+	<property name="test.src" value="${test.home}/src" description="Specifies src folder location in the project"/>
+	<property name="test.jars" value="G:/SeleniumTraining/Selenium/TrainingFiles/JARs" description="Specifies JARs location"/>
+	<property name="test.dest" value="${test.home}/ant_build" description="Specifies location to store .class compiled files"/>
+	<property name="test.reports" value="${test.home}/ant_reports" description="Specifies test reports output location"/>
+	
+    <path id="test.classpath">
+	    <pathelement location="${test.dest}" />
+	    <fileset dir="${test.jars}">
+	    	<include name="*.jar"/>
+	    </fileset>
+    </path>
+	
+<!-- ========== Target Clean - to delete existing compiled .classes, test reports ======= -->
+	<target name="clean">
+		<echo message="Deleting Ant Build directory..." />
+		<delete dir="${test.dest}" /> 
+		<echo message="Deleting Ant Reports directory..." />
+		<delete dir="${test.reports}" /> 
+	</target>
+	
+<!-- ========== Target Compile - Compiles the JAVA code and generates .class files ======== -->
+	<target name="compile" depends="clean"> 
+		<echo message="Creating Ant Build directory..." />
+		<mkdir dir="${test.dest}" />
+		<echo message="Creating Ant Reports directory..." />
+		<mkdir dir="${test.reports}" />
+		<echo message="Compiling the JAVA code..." />
+		<javac srcdir="${test.src}" destdir="${test.dest}" classpathref="test.classpath"  verbose="false" debug="true"> </javac> 
+	</target>
+
+<!-- ========== Target Run - Run the JUnit Tests and Generate Reports ====================== -->
+	  <target name="run" depends="compile">
+	  	
+		<echo message="Starting the execution of tests..." />
+	  	<junit printsummary="true" showoutput="true" fork="true" haltonfailure="false">
+	      <classpath refid="test.classpath" />
+	      <formatter type="xml" />
+	      <batchtest fork="yes" todir="${test.reports}">
+	        <fileset dir="${test.dest}">
+			  <!-- =========== Specify which tests to run =========== -->
+	          <!-- <include name="**/*Test*.java" description="To run all test classes in the project"/> -->
+	        	<include name="com/mysite/tests/JUnitTestCase1.class"/>
+	        	<include name="com/mysite/tests/IndeedJUnitTests.class"/>
+	        </fileset>
+	      </batchtest>
+	    </junit>
+	
+		<echo message="Starting the generation of reports..." />
+	    <junitreport todir="${test.reports}">
+	    <fileset dir="${test.reports}">
+	    <include name="TEST-*.xml" />
+	    </fileset>
+	    <report todir="${test.reports}" />
+	    </junitreport>
+	  	
+	  </target>
+	
+<!-- ========== Target Usage - Default target to run when just Ant command alone is used =========== -->
+		  <target name="usage">
+			<echo message="Use command: Ant run to execute the tests" />
+		  </target>
+	
+</project>
+
+
